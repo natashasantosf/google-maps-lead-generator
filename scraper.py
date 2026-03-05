@@ -3,6 +3,7 @@ import random
 import os
 import pandas as pd
 from urllib.parse import quote
+from tqdm import tqdm
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -62,7 +63,7 @@ class GoogleMapsScraper:
         return filtered 
     
     def excract(self):
-         for i in range(self.quantity):
+         for i in tqdm(range(self.quantity), desc="Extracting businesses"):
             self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.Nv2PK')))
             companies = self._get_filtered_cards()
 
@@ -106,13 +107,13 @@ class GoogleMapsScraper:
 
             print(f"{i+1} - {name}")
 
-            back_button = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'button[aria-label*="Back"], button[aria-label*="Voltar"]')))
-            back_button.click()
+            self.driver.back()
+            time.sleep(2)
 
             self._delay(1.5, 3)
 
     def save_to_csv(self):
-        df = pd.DataFrame(slf.data, columns=["name", "phone", "website", "address"])
+        df = pd.DataFrame(self.data, columns=["name", "phone", "website", "address"])
         
         file_path = os.path.join(os.getcwd(), "leads.csv")
 
